@@ -1,0 +1,444 @@
+# Chronic Kidney Disease Prediction Project
+
+# Week 1 - Data Cleaning, Preprocessing and Initial Exploration
+
+# IMPORTING REQUIRED LIBRARIES
+
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.preprocessing import LabelEncoder
+
+import warnings
+warnings.filterwarnings("ignore")
+
+
+
+# LOADING THE DATASET
+# ==========================================================
+
+# Reading the dataset file
+
+df = pd.read_csv("/content/ChronicKidneyDisease.csv")
+
+print("Dataset loaded successfully")
+print()
+
+
+# ==========================================================
+# BASIC DATA EXPLORATION
+# ==========================================================
+
+# Display first 5 rows
+
+print("First 5 Rows of Dataset")
+print(df.head())
+
+print("\n--------------------------------------")
+
+# Dataset shape
+
+print("Dataset Shape")
+print(df.shape)
+
+print("\n--------------------------------------")
+
+# Column names
+
+print("Column Names")
+print(df.columns)
+
+print("\n--------------------------------------")
+
+# Dataset information
+
+print("Dataset Information")
+print(df.info())
+
+print("\n--------------------------------------")
+
+# Checking duplicate records
+
+print("Duplicate Rows")
+print(df.duplicated().sum())
+
+print("\n--------------------------------------")
+
+# Missing values
+
+print("Missing Values")
+print(df.isnull().sum())
+
+
+# ==========================================================
+# CLEANING COLUMN NAMES
+# ==========================================================
+
+# Converting column names into lowercase
+
+df.columns = df.columns.str.lower()
+
+print("\nUpdated Column Names")
+print(df.columns)
+
+
+# ==========================================================
+# REMOVING EXTRA SPACES AND SPECIAL CHARACTERS
+# ==========================================================
+
+# Some columns contain unwanted spaces or tabs
+
+for column in df.columns:
+    
+    if df[column].dtype == 'object':
+        
+        df[column] = df[column].astype(str)
+        
+        df[column] = df[column].str.strip()
+        
+        df[column] = df[column].str.replace('\t', '')
+
+print("\nText Cleaning Completed")
+
+
+# ==========================================================
+# CHECKING DATA TYPES
+# ==========================================================
+
+print("\nCurrent Data Types")
+print(df.dtypes)
+
+
+# ==========================================================
+# CONVERTING COLUMNS TO NUMERIC
+# ==========================================================
+
+# These columns should contain numerical values
+
+numerical_columns = [
+    'age',
+    'bp',
+    'sg',
+    'al',
+    'su',
+    'bgr',
+    'bu',
+    'sc',
+    'sod',
+    'pot',
+    'hemo',
+    'pcv',
+    'wc',
+    'rc'
+]
+
+for column in numerical_columns:
+    
+    df[column] = pd.to_numeric(df[column], errors='coerce')
+
+print("\nNumerical Conversion Completed")
+
+
+# ==========================================================
+# CHECKING MISSING VALUES AGAIN
+# ==========================================================
+
+print("\nMissing Values After Conversion")
+print(df.isnull().sum())
+
+
+# ==========================================================
+# VISUALIZING MISSING VALUES
+# ==========================================================
+
+plt.figure(figsize=(14,6))
+
+sns.heatmap(df.isnull(),
+            cbar=False,
+            cmap='viridis')
+
+plt.title("Missing Values Heatmap")
+
+plt.show()
+
+
+# ==========================================================
+# HANDLING MISSING VALUES
+# ==========================================================
+
+# Separating numerical and categorical columns
+
+num_cols = df.select_dtypes(include=['int64', 'float64']).columns
+
+cat_cols = df.select_dtypes(include=['object']).columns
+
+
+# Filling numerical missing values using median
+
+for column in num_cols:
+    
+    median_value = df[column].median()
+    
+    df[column].fillna(median_value, inplace=True)
+
+
+# Filling categorical missing values using mode
+
+for column in cat_cols:
+    
+    mode_value = df[column].mode()[0]
+    
+    df[column].fillna(mode_value, inplace=True)
+
+print("\nMissing Values Handled Successfully")
+
+
+# ==========================================================
+# VERIFYING MISSING VALUES
+# ==========================================================
+
+print("\nMissing Values After Treatment")
+print(df.isnull().sum())
+
+
+# ==========================================================
+# STATISTICAL SUMMARY
+# ==========================================================
+
+print("\nStatistical Summary")
+print(df.describe())
+
+
+# ==========================================================
+# UNIQUE VALUES IN CATEGORICAL COLUMNS
+# ==========================================================
+
+for column in cat_cols:
+    
+    print(f"\nUnique values in {column}")
+    
+    print(df[column].unique())
+
+
+# ==========================================================
+# LABEL ENCODING
+# ==========================================================
+
+# Converting categorical columns into numerical format
+
+encoder = LabelEncoder()
+
+for column in cat_cols:
+    
+    df[column] = encoder.fit_transform(df[column])
+
+print("\nCategorical Encoding Completed")
+
+
+# ==========================================================
+# CORRELATION HEATMAP
+# ==========================================================
+
+plt.figure(figsize=(18,10))
+
+correlation_matrix = df.corr()
+
+sns.heatmap(correlation_matrix,
+            annot=True,
+            cmap='coolwarm')
+
+plt.title("Feature Correlation Heatmap")
+
+plt.show()
+
+
+# ==========================================================
+# AGE DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['age'],
+             kde=True)
+
+plt.title("Age Distribution")
+
+plt.xlabel("Age")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD PRESSURE DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['bp'],
+             kde=True)
+
+plt.title("Blood Pressure Distribution")
+
+plt.xlabel("Blood Pressure")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD GLUCOSE RANDOM DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['bgr'],
+             kde=True)
+
+plt.title("Blood Glucose Random Distribution")
+
+plt.xlabel("Blood Glucose Random")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# HEMOGLOBIN DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['hemo'],
+             kde=True)
+
+plt.title("Hemoglobin Distribution")
+
+plt.xlabel("Hemoglobin")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# OUTLIER DETECTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(df['sc'])
+
+plt.title("Serum Creatinine Outliers")
+
+plt.show()
+
+
+# ==========================================================
+# DISEASE CLASSIFICATION COUNT
+# ==========================================================
+
+plt.figure(figsize=(6,4))
+
+sns.countplot(x=df['classification'])
+
+plt.title("CKD Classification Count")
+
+plt.show()
+
+
+# ==========================================================
+# RELATIONSHIP BETWEEN BP AND CKD
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x='classification',
+            y='bp',
+            data=df)
+
+plt.title("Blood Pressure vs CKD Classification")
+
+plt.show()
+
+
+# ==========================================================
+# RELATIONSHIP BETWEEN HEMOGLOBIN AND CKD
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x='classification',
+            y='hemo',
+            data=df)
+
+plt.title("Hemoglobin vs CKD Classification")
+
+plt.show()
+
+
+# ==========================================================
+# SAVING CLEANED DATASET
+# ==========================================================
+
+df.to_csv("cleaned_chronic_kidney_disease.csv", index=False)
+
+print("\nCleaned dataset saved successfully")
+
+
+# ==========================================================
+# ETHICAL AND PRIVACY NOTES
+# ==========================================================
+
+print("\n========================================")
+print("ETHICAL DATA HANDLING")
+print("========================================")
+
+print("""
+1. Dataset used is anonymized.
+2. No patient identity information is present.
+3. No protected health information was exposed.
+4. Data analysis follows healthcare ethics standards.
+5. Project is developed only for educational purposes.
+""")
+
+
+# ==========================================================
+# FINAL PROJECT SUMMARY
+# ==========================================================
+
+
+print("WEEK 1 COMPLETED SUCCESSFULLY")
+print("========================================")
+
+print(f"Final Dataset Shape : {df.shape}")
+
+print("\nCompleted Tasks")
+
+print("✔ Dataset Loading")
+print("✔ Data Cleaning")
+print("✔ Missing Value Treatment")
+print("✔ Data Type Conversion")
+print("✔ Label Encoding")
+print("✔ Exploratory Data Analysis")
+print("✔ Correlation Analysis")
+print("✔ Visualization")
+print("✔ Exported Cleaned Dataset")
+
+
+# ==========================================================
+# DISPLAYING FINAL DATASET
+# ==========================================================
+
+print("\nFinal Processed Dataset")
+print(df.head())
+
+
+
