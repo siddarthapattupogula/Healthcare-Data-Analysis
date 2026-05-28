@@ -1,0 +1,384 @@
+# Chronic Kidney Disease Prediction Project
+
+# Week 3 - Machine Learning Model Building and Prediction
+
+# ==========================================================
+# IMPORTING REQUIRED LIBRARIES
+# ==========================================================
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve
+
+from imblearn.over_sampling import SMOTE
+
+import warnings
+warnings.filterwarnings("ignore")
+
+
+# ==========================================================
+# LOADING CLEANED DATASET
+# ==========================================================
+
+df = pd.read_csv("cleaned_chronic_kidney_disease.csv")
+
+print("Dataset Loaded Successfully")
+print()
+
+
+# ==========================================================
+# DISPLAYING DATASET
+# ==========================================================
+
+print("First 5 Rows")
+print(df.head())
+
+print("\n---------------------------------------")
+
+print("Dataset Shape")
+print(df.shape)
+
+
+# ==========================================================
+# CHECKING TARGET COLUMN
+# ==========================================================
+
+print("\nClassification Distribution")
+print(df['classification'].value_counts())
+
+
+# ==========================================================
+# SEPARATING FEATURES AND TARGET
+# ==========================================================
+
+# X -> Input Features
+# y -> Target Variable
+
+X = df.drop('classification', axis=1)
+
+y = df['classification']
+
+print("\nFeatures and Target Variable Created")
+
+
+# ==========================================================
+# TRAIN TEST SPLIT
+# ==========================================================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("\nTrain Test Split Completed")
+
+print("\nTraining Data Shape")
+print(X_train.shape)
+
+print("\nTesting Data Shape")
+print(X_test.shape)
+
+
+# ==========================================================
+# HANDLING CLASS IMBALANCE USING SMOTE
+# ==========================================================
+
+smote = SMOTE(random_state=42)
+
+X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+
+print("\nSMOTE Applied Successfully")
+
+print("\nBefore SMOTE")
+print(y_train.value_counts())
+
+print("\nAfter SMOTE")
+print(pd.Series(y_train_smote).value_counts())
+
+
+# ==========================================================
+# LOGISTIC REGRESSION MODEL
+# ==========================================================
+
+logistic_model = LogisticRegression(max_iter=1000)
+
+logistic_model.fit(X_train_smote, y_train_smote)
+
+print("\nLogistic Regression Model Trained Successfully")
+
+
+# ==========================================================
+# RANDOM FOREST MODEL
+# ==========================================================
+
+random_forest_model = RandomForestClassifier(
+    n_estimators=200,
+    max_depth=8,
+    random_state=42
+)
+
+random_forest_model.fit(X_train_smote, y_train_smote)
+
+print("\nRandom Forest Model Trained Successfully")
+
+
+# ==========================================================
+# MAKING PREDICTIONS
+# ==========================================================
+
+# Logistic Regression Predictions
+
+lr_predictions = logistic_model.predict(X_test)
+
+# Random Forest Predictions
+
+rf_predictions = random_forest_model.predict(X_test)
+
+print("\nPredictions Completed")
+
+
+# ==========================================================
+# LOGISTIC REGRESSION ACCURACY
+# ==========================================================
+
+lr_accuracy = accuracy_score(y_test, lr_predictions)
+
+print("\nLogistic Regression Accuracy")
+print(lr_accuracy)
+
+
+# ==========================================================
+# RANDOM FOREST ACCURACY
+# ==========================================================
+
+rf_accuracy = accuracy_score(y_test, rf_predictions)
+
+print("\nRandom Forest Accuracy")
+print(rf_accuracy)
+
+
+# ==========================================================
+# LOGISTIC REGRESSION CONFUSION MATRIX
+# ==========================================================
+
+lr_confusion_matrix = confusion_matrix(y_test, lr_predictions)
+
+plt.figure(figsize=(6,4))
+
+sns.heatmap(lr_confusion_matrix,
+            annot=True,
+            fmt='d',
+            cmap='Blues')
+
+plt.title("Logistic Regression Confusion Matrix")
+
+plt.xlabel("Predicted")
+
+plt.ylabel("Actual")
+
+plt.show()
+
+
+# ==========================================================
+# RANDOM FOREST CONFUSION MATRIX
+# ==========================================================
+
+rf_confusion_matrix = confusion_matrix(y_test, rf_predictions)
+
+plt.figure(figsize=(6,4))
+
+sns.heatmap(rf_confusion_matrix,
+            annot=True,
+            fmt='d',
+            cmap='Greens')
+
+plt.title("Random Forest Confusion Matrix")
+
+plt.xlabel("Predicted")
+
+plt.ylabel("Actual")
+
+plt.show()
+
+
+# ==========================================================
+# CLASSIFICATION REPORT
+# ==========================================================
+
+print("\n========================================")
+print("LOGISTIC REGRESSION REPORT")
+print("========================================")
+
+print(classification_report(y_test, lr_predictions))
+
+
+print("\n========================================")
+print("RANDOM FOREST REPORT")
+print("========================================")
+
+print(classification_report(y_test, rf_predictions))
+
+
+# ==========================================================
+# ROC AUC SCORE
+# ==========================================================
+
+lr_auc = roc_auc_score(
+    y_test,
+    logistic_model.predict_proba(X_test)[:,1]
+)
+
+rf_auc = roc_auc_score(
+    y_test,
+    random_forest_model.predict_proba(X_test)[:,1]
+)
+
+print("\nLogistic Regression ROC AUC Score")
+print(lr_auc)
+
+print("\nRandom Forest ROC AUC Score")
+print(rf_auc)
+
+
+# ==========================================================
+# ROC CURVE VISUALIZATION
+# ==========================================================
+
+# Logistic Regression ROC Curve
+
+lr_fpr, lr_tpr, lr_threshold = roc_curve(
+    y_test,
+    logistic_model.predict_proba(X_test)[:,1]
+)
+
+# Random Forest ROC Curve
+
+rf_fpr, rf_tpr, rf_threshold = roc_curve(
+    y_test,
+    random_forest_model.predict_proba(X_test)[:,1]
+)
+
+plt.figure(figsize=(8,6))
+
+plt.plot(lr_fpr, lr_tpr, label='Logistic Regression')
+
+plt.plot(rf_fpr, rf_tpr, label='Random Forest')
+
+plt.plot([0,1], [0,1], linestyle='--')
+
+plt.xlabel("False Positive Rate")
+
+plt.ylabel("True Positive Rate")
+
+plt.title("ROC Curve Comparison")
+
+plt.legend()
+
+plt.show()
+
+
+# ==========================================================
+# FEATURE IMPORTANCE
+# ==========================================================
+
+feature_importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': random_forest_model.feature_importances_
+})
+
+feature_importance = feature_importance.sort_values(
+    by='Importance',
+    ascending=False
+)
+
+print("\nTop Important Features")
+print(feature_importance.head(10))
+
+
+# ==========================================================
+# VISUALIZING FEATURE IMPORTANCE
+# ==========================================================
+
+plt.figure(figsize=(10,6))
+
+sns.barplot(
+    x='Importance',
+    y='Feature',
+    data=feature_importance.head(10)
+)
+
+plt.title("Top 10 Important Features")
+
+plt.show()
+
+
+# ==========================================================
+# HYPERPARAMETER TUNING
+# ==========================================================
+
+parameters = {
+    'n_estimators': [100, 200],
+    'max_depth': [5, 8, 10]
+}
+
+grid_search = GridSearchCV(
+    estimator=RandomForestClassifier(random_state=42),
+    param_grid=parameters,
+    scoring='recall',
+    cv=5
+)
+
+grid_search.fit(X_train_smote, y_train_smote)
+
+print("\nBest Parameters")
+print(grid_search.best_params_)
+
+print("\nBest Recall Score")
+print(grid_search.best_score_)
+
+
+# ==========================================================
+# SAVING FEATURE IMPORTANCE
+# ==========================================================
+
+feature_importance.to_csv(
+    "feature_importance.csv",
+    index=False
+)
+
+print("\nFeature Importance File Saved Successfully")
+
+
+# ==========================================================
+# HEALTHCARE MODEL INSIGHTS
+# ==========================================================
+
+print("\n========================================")
+print("MODEL INSIGHTS")
+print("========================================")
+
+print("""
+1. Random Forest performs better on healthcare data.
+2. Recall is important because missing sick patients is dangerous.
+3. Serum Creatinine is one of the strongest predictors.
+4. Hemoglobin and Albumin contribute highly to prediction.
+5. SMOTE improved minority class prediction.
+""")
+
