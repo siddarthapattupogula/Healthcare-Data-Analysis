@@ -1,0 +1,381 @@
+# Chronic Kidney Disease Prediction Project
+
+# Week 2 - Exploratory Data Analysis and Biomarker Correlation
+
+# ==========================================================
+# IMPORTING REQUIRED LIBRARIES
+# ==========================================================
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import warnings
+warnings.filterwarnings("ignore")
+
+
+# ==========================================================
+# LOADING CLEANED DATASET
+# ==========================================================
+
+# Load the cleaned dataset generated in Week 1
+
+df = pd.read_csv("cleaned_chronic_kidney_disease.csv")
+
+print("Cleaned Dataset Loaded Successfully")
+print()
+
+
+# ==========================================================
+# BASIC DATA OVERVIEW
+# ==========================================================
+
+print("First 5 Rows")
+print(df.head())
+
+print("\n-----------------------------------")
+
+print("Dataset Shape")
+print(df.shape)
+
+print("\n-----------------------------------")
+
+print("Dataset Information")
+print(df.info())
+
+
+# ==========================================================
+# CHECKING CLASS DISTRIBUTION
+# ==========================================================
+
+print("\nCKD Classification Distribution")
+print(df['classification'].value_counts())
+
+
+# ==========================================================
+# VISUALIZING CLASS DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(6,4))
+
+sns.countplot(x='classification', data=df)
+
+plt.title("CKD Classification Count")
+
+plt.xlabel("Classification")
+
+plt.ylabel("Count")
+
+plt.show()
+
+
+# ==========================================================
+# AGE DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['age'],
+             kde=True)
+
+plt.title("Age Distribution")
+
+plt.xlabel("Age")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD PRESSURE DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['bp'],
+             kde=True)
+
+plt.title("Blood Pressure Distribution")
+
+plt.xlabel("Blood Pressure")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD GLUCOSE RANDOM DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['bgr'],
+             kde=True)
+
+plt.title("Blood Glucose Random Distribution")
+
+plt.xlabel("Blood Glucose Random")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# HEMOGLOBIN DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['hemo'],
+             kde=True)
+
+plt.title("Hemoglobin Distribution")
+
+plt.xlabel("Hemoglobin")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# SERUM CREATININE DISTRIBUTION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(df['sc'],
+             kde=True)
+
+plt.title("Serum Creatinine Distribution")
+
+plt.xlabel("Serum Creatinine")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ==========================================================
+# OUTLIER DETECTION
+# ==========================================================
+
+# Blood Pressure Outliers
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x=df['bp'])
+
+plt.title("Blood Pressure Outliers")
+
+plt.show()
+
+
+# Serum Creatinine Outliers
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x=df['sc'])
+
+plt.title("Serum Creatinine Outliers")
+
+plt.show()
+
+
+# Hemoglobin Outliers
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x=df['hemo'])
+
+plt.title("Hemoglobin Outliers")
+
+plt.show()
+
+
+# ==========================================================
+# CORRELATION HEATMAP
+# ==========================================================
+
+plt.figure(figsize=(18,10))
+
+correlation_matrix = df.corr()
+
+sns.heatmap(correlation_matrix,
+            annot=True,
+            cmap='coolwarm',
+            linewidths=0.5)
+
+plt.title("Feature Correlation Heatmap")
+
+plt.show()
+
+
+# ==========================================================
+# TOP CORRELATED FEATURES WITH CKD
+# ==========================================================
+
+# Correlation with target column
+
+target_correlation = correlation_matrix['classification'].sort_values(ascending=False)
+
+print("\nCorrelation with CKD Classification")
+print(target_correlation)
+
+
+# ==========================================================
+# AGE VS BLOOD PRESSURE
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.scatterplot(x='age',
+                y='bp',
+                hue='classification',
+                data=df)
+
+plt.title("Age vs Blood Pressure")
+
+plt.xlabel("Age")
+
+plt.ylabel("Blood Pressure")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD GLUCOSE VS SERUM CREATININE
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.scatterplot(x='bgr',
+                y='sc',
+                hue='classification',
+                data=df)
+
+plt.title("Blood Glucose vs Serum Creatinine")
+
+plt.xlabel("Blood Glucose Random")
+
+plt.ylabel("Serum Creatinine")
+
+plt.show()
+
+
+# ==========================================================
+# BLOOD PRESSURE VS CKD CLASSIFICATION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x='classification',
+            y='bp',
+            data=df)
+
+plt.title("Blood Pressure by CKD Classification")
+
+plt.show()
+
+
+# ==========================================================
+# HEMOGLOBIN VS CKD CLASSIFICATION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x='classification',
+            y='hemo',
+            data=df)
+
+plt.title("Hemoglobin by CKD Classification")
+
+plt.show()
+
+
+# ==========================================================
+# ALBUMIN VS CKD CLASSIFICATION
+# ==========================================================
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(x='classification',
+            y='al',
+            data=df)
+
+plt.title("Albumin by CKD Classification")
+
+plt.show()
+
+
+# ==========================================================
+# PAIRPLOT ANALYSIS
+# ==========================================================
+
+selected_features = [
+    'age',
+    'bp',
+    'bgr',
+    'hemo',
+    'sc',
+    'classification'
+]
+
+sns.pairplot(df[selected_features],
+             hue='classification')
+
+plt.show()
+
+
+# ==========================================================
+# CHECKING MULTICOLLINEARITY
+# ==========================================================
+
+# Finding highly correlated features
+
+high_correlation = correlation_matrix.abs()
+
+upper_triangle = high_correlation.where(
+    np.triu(np.ones(high_correlation.shape), k=1).astype(bool)
+)
+
+high_corr_features = [
+    column for column in upper_triangle.columns
+    if any(upper_triangle[column] > 0.85)
+]
+
+print("\nHighly Correlated Features")
+print(high_corr_features)
+
+
+# ==========================================================
+# FEATURE INSIGHTS
+# ==========================================================
+
+print("\n========================================")
+print("KEY BIOMARKER INSIGHTS")
+print("========================================")
+
+print("""
+1. Serum Creatinine shows strong relationship with CKD.
+2. Hemoglobin levels vary significantly across patients.
+3. Blood pressure is higher in CKD patients.
+4. Albumin levels contribute strongly to disease prediction.
+5. Blood glucose values indicate possible diabetic conditions.
+""")
+
+
+# ==========================================================
+# SAVING EDA SUMMARY DATA
+# ==========================================================
+
+correlation_matrix.to_csv("correlation_matrix.csv")
+
+print("\nCorrelation Matrix Saved Successfully")
+
+
