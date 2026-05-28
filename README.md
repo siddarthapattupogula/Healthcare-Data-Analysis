@@ -11,4 +11,5 @@ Multiple machine learning models including Logistic Regression and Random Forest
 The project also includes a professional and interactive Healthcare Analytics Dashboard designed for business presentations and executive-level reporting. The dashboard provides visual insights into disease prevalence, biomarker analysis, patient risk profiles, feature importance, model performance metrics, and high-risk patient identification. This enables healthcare practitioners and hospital administrators to make better clinical and operational decisions using predictive healthcare intelligence.
 
 The technology stack used in this project includes Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-Learn, Streamlit, and Jupyter Notebook. The project demonstrates practical applications of healthcare analytics, machine learning, data visualization, and ethical AI in the medical domain while showcasing strong analytical, technical, and business intelligence skills.
-"C:\Users\siddu\OneDrive\Documents\Pictures\DASHBOARD PROJECT.png"
+<img width="1692" height="930" alt="DASHBOARD PROJECT" src="https://github.com/user-attachments/assets/0056efea-44c8-4897-ac50-a1a824082299" />
+
